@@ -200,17 +200,17 @@ render();})();
 const $=id=>document.getElementById(id);
 const KEY='stand_archive_cast_v1';
 const defaults=[
- {id:'team-ballroom',faction:'team',role:'주인공',standId:'ballroom-blitz',characterName:'',notes:''},
- {id:'team-london',faction:'team',role:'조력자',standId:'london-calling',characterName:'',notes:''},
- {id:'team-virtual',faction:'team',role:'조력자',standId:'wonderwall',characterName:'',notes:''},
- {id:'team-quest',faction:'team',role:'조력자',standId:'qu-est-ce-que-c-est',characterName:'',notes:''},
- {id:'team-scar',faction:'team',role:'조력자',standId:'scar-tissue',characterName:'',notes:''}
+ {id:'team-ballroom',faction:'team',role:'주인공',standId:'ballroom-blitz',characterName:'죠베르 죠셀린 (Jobert Jocelyn)',notes:''},
+ {id:'team-london',faction:'team',role:'조력자',standId:'london-calling',characterName:'가스파르 르클레르 (Gaspard Leclerc)',notes:''},
+ {id:'team-virtual',faction:'team',role:'조력자',standId:'wonderwall',characterName:'마농 뒤발 (Manon Duval)',notes:''},
+ {id:'team-quest',faction:'team',role:'조력자',standId:'qu-est-ce-que-c-est',characterName:'바스티앙 모로 (Bastien Moreau)',notes:''},
+ {id:'team-scar',faction:'team',role:'조력자',standId:'scar-tissue',characterName:'레미 라크루아 (Rémi Lacroix)',notes:''}
 ];
 const standData=JSON.parse($('stand-data').textContent);
 const stands=new Map(standData.map(x=>[x.id,x.name]));
 stands.set('wonderwall','VIRTUAL INSANITY');
 let cast=defaults.map(x=>({...x}));
-try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(Array.isArray(saved))cast=sanitize(saved)}catch(e){}
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(Array.isArray(saved)){cast=sanitize(saved);cast.forEach(x=>{const d=defaults.find(y=>y.id===x.id);if(d&&!x.characterName)x.characterName=d.characterName})}}catch(e){}
 let view='all',editing=null;
 function sanitize(items){
  if(!Array.isArray(items)||items.length>500)throw Error('인물 데이터가 올바르지 않습니다.');
