@@ -147,6 +147,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
    <button class="cast-tab" data-faction="all" role="tab" aria-selected="true" type="button">전체</button>
    <button class="cast-tab" data-faction="team" role="tab" aria-selected="false" type="button">주인공 일행</button>
    <button class="cast-tab" data-faction="enemy" role="tab" aria-selected="false" type="button">적</button>
+   <button class="cast-tab" data-faction="converted" role="tab" aria-selected="false" type="button">적 → 조력자</button>
   </div>
   <div class="cast-actions">
    <button class="cast-btn primary" id="castAdd" type="button">+ 인물 추가</button>
@@ -157,7 +158,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <form id="castEditor" class="cast-editor" hidden>
    <div class="cast-kicker" id="castEditorTitle">인물 편집</div>
    <div class="cast-form-grid">
-    <label class="cast-field">진영<select id="castFaction"><option value="team">주인공 일행</option><option value="enemy">적</option></select></label>
+    <label class="cast-field">진영<select id="castFaction"><option value="team">주인공 일행</option><option value="enemy">적</option><option value="converted">적 → 조력자</option></select></label>
     <label class="cast-field">역할<select id="castRole"><option value="주인공">주인공</option><option value="조력자">조력자</option><option value="적">적</option><option value="기타">기타</option></select></label>
     <label class="cast-field wide">인물 이름<input id="castCharacterName" maxlength="80" placeholder="미정 (나중에 입력 가능)"></label>
     <label class="cast-field wide">사용 스탠드<select id="castStand" required></select></label>
@@ -206,7 +207,7 @@ const defaults=[
  {id:'team-quest',faction:'team',role:'조력자',standId:'qu-est-ce-que-c-est',characterName:'루시앙 페렉 (Lucien Perec)',notes:''},
  {id:'team-scar',faction:'team',role:'조력자',standId:'scar-tissue',characterName:'블레즈 타투 (Blaise Tatou)',notes:''},
  {id:'enemy-land-ho',faction:'enemy',role:'적',standId:'land-ho',characterName:'모리스 블루필드 (Morris Bluefield)',notes:'영국인'},
- {id:'team-big-cheese',faction:'team',role:'조력자',standId:'big-cheese',characterName:'에티엔 코뱅 (Étienne Cobain)',notes:"국적: 프랑스. 이름 모티브: Kurt Cobain(Nirvana). 성격: 무심하고 냉소적이며 거친 농담을 즐기지만 약자를 다치게 하는 일을 싫어하고 책임감을 중시함. 『BIG CHEESE』로 자기 몸을 치즈처럼 유동화해 팔다리를 늘이고 좁은 틈을 통과하며, 치즈화된 물질이 30초에 걸쳐 점차 굳는 시간을 계산해 싸움. 과거 치즈 숙성공장의 안전 점검서에 서명했으나, 그 서명이 악용되어 동료 뤼크 베르나르의 실종 사건과 관련됨. 실종된 뤼크의 출하 기록을 조사하다 죠베르를 사건 배후의 해결사로 오인해 싸움. 공장 압축 설비가 증거를 파괴하려 하자 죠베르의 『BALLROOM BLITZ』와 협력하여 47번 운송 기록 및 녹음기를 구해 냄. 죠베르가 자신을 구한 사실과 진실을 확인한 뒤, 뤼크의 행방과 사건 배후를 함께 추적하기 위해 동료로 합류함. 죠베르의 부하가 아닌 대등한 조력자."}
+ {id:'team-big-cheese',faction:'converted',role:'조력자',standId:'big-cheese',characterName:'에티엔 코뱅 (Étienne Cobain)',notes:"진영 이력: 적 → 조력자. 국적: 프랑스. 이름 모티브: Kurt Cobain(Nirvana). 성격: 무심하고 냉소적이며 거친 농담을 즐기지만 약자를 다치게 하는 일을 싫어하고 책임감을 중시함. 『BIG CHEESE』로 자기 몸을 치즈처럼 유동화해 팔다리를 늘이고 좁은 틈을 통과하며, 치즈화된 물질이 30초에 걸쳐 점차 굳는 시간을 계산해 싸움. 과거 치즈 숙성공장의 안전 점검서에 서명했으나, 그 서명이 악용되어 동료 뤼크 베르나르의 실종 사건과 관련됨. 실종된 뤼크의 출하 기록을 조사하다 죠베르를 사건 배후의 해결사로 오인해 싸움. 공장 압축 설비가 증거를 파괴하려 하자 죠베르의 『BALLROOM BLITZ』와 협력하여 47번 운송 기록 및 녹음기를 구해 냄. 죠베르가 자신을 구한 사실과 진실을 확인한 뒤, 뤼크의 행방과 사건 배후를 함께 추적하기 위해 동료로 합류함. 죠베르의 부하가 아닌 대등한 조력자."}
 ];
 const standData=JSON.parse($('stand-data').textContent);
 const stands=new Map(standData.map(x=>[x.id,x.name]));
@@ -217,7 +218,7 @@ try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(Array.isArray(s
 if(!cast.some(x=>x.id==='enemy-land-ho'||(x.faction==='enemy'&&x.standId==='land-ho'))){cast.push({...defaults.find(x=>x.id==='enemy-land-ho')})}
 const bigCheeseProfile=defaults.find(x=>x.id==='team-big-cheese');
 const existingBigCheese=cast.find(x=>x.id==='team-big-cheese'||x.standId==='big-cheese');
-if(existingBigCheese){existingBigCheese.faction='team';existingBigCheese.role='조력자';existingBigCheese.standId='big-cheese';existingBigCheese.characterName=bigCheeseProfile.characterName;if(!existingBigCheese.notes)existingBigCheese.notes=bigCheeseProfile.notes}
+if(existingBigCheese){existingBigCheese.faction='converted';existingBigCheese.role='조력자';existingBigCheese.standId='big-cheese';existingBigCheese.characterName=bigCheeseProfile.characterName;if(!existingBigCheese.notes)existingBigCheese.notes=bigCheeseProfile.notes}
 else cast.push({...bigCheeseProfile});
 let view='all',editing=null;
 function sanitize(items){
@@ -228,7 +229,7 @@ function sanitize(items){
   const id=String(x.id||('import-'+i)).slice(0,100);
   if(ids.has(id))throw Error('중복된 인물 ID');
   ids.add(id);
-  const faction=x.faction==='enemy'?'enemy':'team';
+  const faction=['team','enemy','converted'].includes(x.faction)?x.faction:'team';
   const role=['주인공','조력자','적','기타'].includes(x.role)?x.role:(faction==='enemy'?'적':'조력자');
   return {id,faction,role,standId:stands.has(x.standId)?x.standId:'',characterName:String(x.characterName||'').slice(0,80),notes:String(x.notes||'').slice(0,2000)};
  });
@@ -239,12 +240,12 @@ function btn(label,handler,variant){const el=node('button','cast-btn'+(variant?'
 function render(){
  $('castEntries').replaceChildren();
  document.querySelectorAll('.cast-tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.faction===view)));
- const filtered=cast.filter(x=>view==='all'||x.faction===view);
- if(!filtered.length){$('castEntries').append(node('div','cast-empty',view==='enemy'?'아직 등록된 적이 없습니다. 인물 추가로 등록할 수 있습니다.':'이 진영에 등록된 인물이 없습니다.'));return}
+ const filtered=cast.filter(x=>view==='all'||(view==='team'?(x.faction==='team'||x.faction==='converted'):x.faction===view));
+ if(!filtered.length){$('castEntries').append(node('div','cast-empty',view==='enemy'?'아직 등록된 적이 없습니다. 인물 추가로 등록할 수 있습니다.':view==='converted'?'아직 적에서 조력자로 합류한 인물이 없습니다.':'이 진영에 등록된 인물이 없습니다.'));return}
  filtered.forEach(x=>{
   const item=node('article','cast-entry');
   const top=node('div','cast-entry-top');
-  top.append(node('span','cast-role',(x.faction==='enemy'?'적 진영 · ':'주인공 일행 · ')+x.role));
+  top.append(node('span','cast-role',(x.faction==='converted'?'적 → 조력자':(x.faction==='enemy'?'적 진영 · ':'주인공 일행 · ')+x.role)));
   item.append(top);
   item.append(node('div','cast-name',x.characterName||'인물 이름 미정'));
   item.append(node('div','cast-stand','『'+(stands.get(x.standId)||'스탠드 미정')+'』'));
@@ -260,7 +261,7 @@ function render(){
 function hideEditor(){$('castEditor').hidden=true;editing=null}
 function edit(id){
  editing=id===null?null:id;
- const x=id===null?{faction:view==='enemy'?'enemy':'team',role:view==='enemy'?'적':'조력자',standId:'',characterName:'',notes:''}:cast.find(y=>y.id===id);
+ const x=id===null?{faction:view==='enemy'?'enemy':view==='converted'?'converted':'team',role:view==='enemy'?'적':'조력자',standId:'',characterName:'',notes:''}:cast.find(y=>y.id===id);
  if(!x)return;
  $('castEditorTitle').textContent=id===null?'새 인물 추가':'인물 설정 편집';
  $('castFaction').value=x.faction;$('castRole').value=x.role;
