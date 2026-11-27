@@ -204,7 +204,8 @@ const defaults=[
  {id:'team-london',faction:'team',role:'조력자',standId:'london-calling',characterName:'자크 텔레몽 (Jacques Télémont)',notes:''},
  {id:'team-virtual',faction:'team',role:'조력자',standId:'wonderwall',characterName:'엘로디 오르셰 (Élodie Orchet)',notes:''},
  {id:'team-quest',faction:'team',role:'조력자',standId:'qu-est-ce-que-c-est',characterName:'루시앙 페렉 (Lucien Perec)',notes:''},
- {id:'team-scar',faction:'team',role:'조력자',standId:'scar-tissue',characterName:'블레즈 타투 (Blaise Tatou)',notes:''}
+ {id:'team-scar',faction:'team',role:'조력자',standId:'scar-tissue',characterName:'블레즈 타투 (Blaise Tatou)',notes:''},
+ {id:'enemy-land-ho',faction:'enemy',role:'적',standId:'land-ho',characterName:'모리스 블루필드 (Morris Bluefield)',notes:'영국인'}
 ];
 const standData=JSON.parse($('stand-data').textContent);
 const stands=new Map(standData.map(x=>[x.id,x.name]));
@@ -212,6 +213,7 @@ stands.set('wonderwall','VIRTUAL INSANITY');
 const previousNames=new Map([["team-london","가스파르 르클레르 (Gaspard Leclerc)"],["team-virtual","마농 뒤발 (Manon Duval)"],["team-quest","바스티앙 모로 (Bastien Moreau)"],["team-scar","레미 라크루아 (Rémi Lacroix)"]]);
 let cast=defaults.map(x=>({...x}));
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(Array.isArray(saved)){cast=sanitize(saved);cast.forEach(x=>{const d=defaults.find(y=>y.id===x.id);if(d&&(!x.characterName||x.characterName===previousNames.get(x.id)))x.characterName=d.characterName})}}catch(e){}
+if(!cast.some(x=>x.id==='enemy-land-ho'||(x.faction==='enemy'&&x.standId==='land-ho'))){cast.push({...defaults.find(x=>x.id==='enemy-land-ho')})}
 let view='all',editing=null;
 function sanitize(items){
  if(!Array.isArray(items)||items.length>500)throw Error('인물 데이터가 올바르지 않습니다.');
